@@ -73,6 +73,55 @@
         .footer-icon-img { width: 220px; border-radius: 30px; filter: grayscale(1); transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
         .footer-icon-img:hover { transform: scale(1.15) rotate(5deg) translateY(-20px); filter: grayscale(0); box-shadow: 0 30px 60px rgba(255,255,255,0.2); }
 
+        /* PRICING SECTION STYLES */
+        .pricing-section { padding: 100px 10% 150px 10%; border-top: 1px solid #111; text-align: center; }
+        .pricing-title { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 900; letter-spacing: -3px; text-transform: uppercase; margin-bottom: 50px; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-top: 50px; }
+        .pricing-card { 
+            background: rgba(255, 255, 255, 0.02); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 30px; 
+            padding: 40px; 
+            text-align: left; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+        .pricing-card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            border-color: rgba(255, 255, 255, 0.2); 
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 30px 60px rgba(255,255,255,0.05);
+        }
+        .pricing-card.featured { 
+            background: rgba(255, 255, 255, 0.05); 
+            border-color: rgba(255, 255, 255, 0.25); 
+        }
+        .tier-name { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: #888; margin-bottom: 15px; }
+        .tier-price { font-size: clamp(2.2rem, 4vw, 3rem); font-weight: 900; letter-spacing: -1px; margin-bottom: 30px; }
+        .tier-price span { font-size: 1rem; font-weight: 400; color: #666; letter-spacing: 0; }
+        .tier-features { list-style: none; padding: 0; margin: 0 0 40px 0; }
+        .tier-features li { margin-bottom: 15px; font-size: 0.95rem; color: #ccc; display: flex; align-items: center; }
+        .tier-features li::before { content: "✓"; margin-right: 12px; color: #fff; font-weight: bold; }
+        .pricing-card-btn { 
+            background: transparent; 
+            color: #fff; 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            padding: 16px 30px; 
+            border-radius: 50px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            text-align: center; 
+            transition: 0.3s; 
+            outline: none;
+        }
+        .pricing-card.featured .pricing-card-btn { background: #fff; color: #000; border-color: #fff; }
+        .pricing-card-btn:hover { background: #fff; color: #000; border-color: #fff; }
+
         #email-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: 0.4s ease; }
         #email-modal.active { opacity: 1; pointer-events: auto; }
         .modal-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 50px; border-radius: 40px; text-align: center; max-width: 500px; width: 90%; transform: scale(0.8); transition: 0.5s; }
@@ -85,6 +134,7 @@
             .logo-frame { padding: 10px 20px; } .header-logo { height: 40px; }
             .mute-btn { bottom: 50px; right: 20px; width: 40px; height: 40px; }
             .arrow { width: 40px; height: 40px; font-size: 1rem; }
+            .pricing-section { padding: 80px 5%; }
         }
     </style>
 </head>
@@ -239,6 +289,56 @@
         </div>
     </footer>
 
+    <!-- NEW PRICING SECTION -->
+    <section class="pricing-section" id="pricing">
+        <div class="pricing-title">PRICING PLANS</div>
+        <div class="pricing-grid">
+            
+            <!-- Plan 1 -->
+            <div class="pricing-card">
+                <div>
+                    <div class="tier-name">Starter pack</div>
+                    <div class="tier-price">€20 <span>/ week</span></div>
+                    <ul class="tier-features">
+                        <li>10 Visually Stunning Posts /week</li>
+                        <li>2 Viral Reels /week</li>
+                        <li>3 Insider Stories /week</li>
+                    </ul>
+                </div>
+                <button class="pricing-card-btn" onclick="toggleModal()">GET STARTER PACK</button>
+            </div>
+
+            <!-- Plan 2 (Featured) -->
+            <div class="pricing-card featured">
+                <div>
+                    <div class="tier-name">Scale pack</div>
+                    <div class="tier-price">€70 <span>/ week</span></div>
+                    <ul class="tier-features">
+                        <li>3 Visually Stunning Posts /day</li>
+                        <li>5 High Energy Reels</li>
+                        <li>1 High-converting Story /day</li>
+                    </ul>
+                </div>
+                <button class="pricing-card-btn" onclick="toggleModal()">GET SCALE PACK</button>
+            </div>
+
+            <!-- Plan 3 -->
+            <div class="pricing-card">
+                <div>
+                    <div class="tier-name">Brand builder</div>
+                    <div class="tier-price">€90 <span>/ week</span></div>
+                    <ul class="tier-features">
+                        <li>4 Aesthetic Posts /day</li>
+                        <li>7 Attention-Grabbing Reels</li>
+                        <li>2 Engaging Stories /day</li>
+                    </ul>
+                </div>
+                <button class="pricing-card-btn" onclick="toggleModal()">get brand builder pack</button>
+            </div>
+
+        </div>
+    </section>
+
     <div id="email-modal" onclick="toggleModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
             <div class="modal-email-text" id="email-val">dgiakhs@gmail.com</div>
@@ -320,6 +420,7 @@
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const wrapper = entry.target;
+                if (!wrapper.classList.contains('device-wrapper')) return;
                 const index = parseInt(wrapper.getAttribute('data-index') || 0);
                 const slides = wrapper.querySelectorAll('.device-content');
                 const activeSlide = slides[index];
