@@ -3,477 +3,1017 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gakman | Growth Architect</title>
+    <title>Gakman | UGC Portfolio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&family=Playfair+Display:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons via CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     
-    <link rel="icon" type="image/png" href="tab-icon.png">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-accent': '#ff4d00',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serifItalic: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
     
     <style>
-        :root { --bg: #000000; --accent: #ffffff; --device-border: #1a1a1a; }
-        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; }
-
-        nav { position: fixed; top: 0; width: 100%; padding: 2rem 5%; display: flex; justify-content: center; align-items: center; z-index: 100; box-sizing: border-box; pointer-events: none; }
-        .logo-frame { pointer-events: auto; display: flex; align-items: center; justify-content: center; padding: 15px 30px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .header-logo { height: 120px; width: auto; display: block; }
-        .logo-frame.hidden { opacity: 0; visibility: hidden; transform: translateY(-40px) scale(0.8); }
-
-        .hero-section { height: 75vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 100px 10% 0 10%; }
-        .hero-text h1 { font-size: clamp(3.5rem, 12vw, 9rem); margin: 0; font-weight: 900; letter-spacing: -5px; line-height: 0.8; text-transform: uppercase; }
-
-        .work-section { padding: 50px 5% 100px 5%; text-align: center; }
-        .phone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 60px; margin-top: 50px; align-items: end; }
-        .device-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; transition: 0.5s; }
-        .device-wrapper:hover { transform: scale(1.03) translateY(-10px); z-index: 10; }
-
-        .phone-device { width: 260px; height: 530px; background: #000; border: 10px solid var(--device-border); border-radius: 40px; position: relative; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
-        .phone-device::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100px; height: 25px; background: var(--device-border); border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; z-index: 10; }
-
-        .laptop-featured { grid-column: span 2; }
-        .laptop-screen { width: 500px; height: 310px; background: #000; border: 12px solid var(--device-border); border-radius: 15px; position: relative; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
-        .laptop-base { width: 560px; height: 12px; background: #333; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; margin-top: -2px; }
-
-        .slides-container { display: flex; width: 100%; height: 100%; transition: transform 0.5s ease-in-out; }
-        .device-content { min-width: 100%; height: 100%; object-fit: cover; background: #111; }
-
-        /* MUTE BUTTON */
-        .mute-btn {
-            position: absolute; bottom: 60px; right: 25px; width: 44px; height: 44px;
-            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px); border-radius: 50%; z-index: 110;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.4s ease; opacity: 0; pointer-events: none;
-            user-select: none;
+        .font-serif-italic {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 900;
         }
-        .mute-btn.visible { opacity: 1; pointer-events: auto; }
-        .laptop-featured .mute-btn { bottom: 45px; right: 45px; }
-
-        /* ARROWS - UPDATED FOR MOBILE */
-        .arrow { 
-            position: absolute; top: 45%; width: 50px; height: 50px; 
-            background: rgba(255,255,255,0.15); border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; z-index: 100; backdrop-filter: blur(5px); 
-            opacity: 1; /* Always visible on mobile for UX */
-            transition: 0.3s; font-weight: bold; font-size: 1.2rem;
-            border: 1px solid rgba(255,255,255,0.1);
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        .arrow-left { left: -15px; }
-        .arrow-right { right: -15px; }
-        @media (min-width: 801px) { .arrow { opacity: 0; } .device-wrapper:hover .arrow { opacity: 1; } }
-
-        .device-label { margin-top: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; color: #888; }
-        .cta-btn { background: #fff; color: #000; padding: 14px 24px; border-radius: 30px; text-decoration: none; font-weight: 900; font-size: 0.8rem; margin-top: 20px; display: inline-block; }
-
-        footer { padding: 150px 10%; border-top: 1px solid #111; text-align: center; }
-        .talk-title { font-size: clamp(2rem, 6vw, 4rem); font-weight: 900; letter-spacing: -2px; text-transform: uppercase; margin-bottom: 50px; }
-        .footer-links-container { display: flex; justify-content: center; align-items: center; gap: 80px; flex-wrap: wrap; }
-        .footer-icon-img { width: 220px; border-radius: 30px; filter: grayscale(1); transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
-        .footer-icon-img:hover { transform: scale(1.15) rotate(5deg) translateY(-20px); filter: grayscale(0); box-shadow: 0 30px 60px rgba(255,255,255,0.2); }
-
-        /* PRICING SECTION STYLES */
-        .pricing-section { padding: 100px 10% 150px 10%; border-top: 1px solid #111; text-align: center; }
-        .pricing-title { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 900; letter-spacing: -3px; text-transform: uppercase; margin-bottom: 50px; }
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-top: 50px; }
-        .pricing-card { 
-            background: rgba(255, 255, 255, 0.02); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 30px; 
-            padding: 40px; 
-            text-align: left; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(10px);
+        ::-webkit-scrollbar-track {
+            background: #0d0d0d;
         }
-        .pricing-card:hover { 
-            transform: translateY(-10px) scale(1.02); 
-            border-color: rgba(255, 255, 255, 0.2); 
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 30px 60px rgba(255,255,255,0.05);
+        ::-webkit-scrollbar-thumb {
+            background: #262626;
+            border-radius: 4px;
         }
-        .pricing-card.featured { 
-            background: rgba(255, 255, 255, 0.05); 
-            border-color: rgba(255, 255, 255, 0.25); 
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff4d00;
         }
-        .tier-name { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: #888; margin-bottom: 15px; }
-        .tier-price { font-size: clamp(2.2rem, 4vw, 3rem); font-weight: 900; letter-spacing: -1px; margin-bottom: 30px; }
-        .tier-price span { font-size: 1rem; font-weight: 400; color: #666; letter-spacing: 0; }
-        .tier-features { list-style: none; padding: 0; margin: 0 0 40px 0; }
-        .tier-features li { margin-bottom: 15px; font-size: 0.95rem; color: #ccc; display: flex; align-items: center; }
-        .tier-features li::before { content: "✓"; margin-right: 12px; color: #fff; font-weight: bold; }
-        .pricing-card-btn { 
-            background: transparent; 
-            color: #fff; 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            padding: 16px 30px; 
-            border-radius: 50px; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            cursor: pointer; 
-            text-align: center; 
-            transition: 0.3s; 
-            outline: none;
+        body {
+            background-color: #0d0d0d;
+            overflow-x: hidden;
         }
-        .pricing-card.featured .pricing-card-btn { background: #fff; color: #000; border-color: #fff; }
-        .pricing-card-btn:hover { background: #fff; color: #000; border-color: #fff; }
-
-        #email-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: 0.4s ease; }
-        #email-modal.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 50px; border-radius: 40px; text-align: center; max-width: 500px; width: 90%; transform: scale(0.8); transition: 0.5s; }
-        .modal-email-text { font-size: 1.8rem; font-weight: 900; margin-bottom: 20px; color: #fff; word-break: break-all; }
-        .copy-btn { background: #fff; color: #000; border: none; padding: 15px 30px; border-radius: 50px; font-weight: 900; cursor: pointer; }
-
-        @media (max-width: 800px) { 
-            .laptop-featured { grid-column: span 1; } .laptop-screen { width: 280px; height: 180px; } .laptop-base { width: 310px; } 
-            .footer-icon-img { width: 150px; } 
-            .logo-frame { padding: 10px 20px; } .header-logo { height: 40px; }
-            .mute-btn { bottom: 50px; right: 20px; width: 40px; height: 40px; }
-            .arrow { width: 40px; height: 40px; font-size: 1rem; }
-            .pricing-section { padding: 80px 5%; }
+        .perspective-container {
+            perspective: 1400px;
+            perspective-origin: center 50%;
+            transform-style: preserve-3d;
+        }
+        .marquee-item-3d {
+            transform-style: preserve-3d;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
         }
     </style>
 </head>
-<body>
+<body class="text-white selection:bg-brand-accent selection:text-white font-sans pb-10">
 
-    <nav>
-        <a href="https://www.instagram.com/gakhs__/" target="_blank" style="text-decoration: none;">
-            <div class="logo-frame" id="logoFrame">
-                <img src="header-logo.png" alt="Gakman Logo" class="header-logo">
-            </div>
+    <!-- Starfield Background Canvas -->
+    <canvas id="starfield" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+
+    <!-- Ambient Accent Blurs -->
+    <div class="absolute top-[-10%] right-[-5%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-brand-accent/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+    <div class="absolute top-[40%] left-[-10%] w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-[10%] right-[-10%] w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-brand-accent/5 rounded-full blur-[130px] pointer-events-none z-0"></div>
+
+    <!-- Floating Header Bar -->
+    <nav class="fixed top-0 left-0 w-full p-6 sm:p-8 flex justify-center items-center z-50 pointer-events-none">
+        <a id="navLogo" href="https://www.instagram.com/gakhs__/" target="_blank" rel="noopener noreferrer" class="pointer-events-auto flex items-center justify-center py-3.5 px-7 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl transition-all duration-500 transform opacity-100 scale-100">
+            <!-- Header Logo Fallback if logo file missing -->
+            <img src="header-logo.png" alt="Gakman Logo" class="h-10 sm:h-12 w-auto object-contain" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+            <span id="logoFallback" class="text-white font-black tracking-widest text-lg uppercase hidden">GAKMAN</span>
         </a>
     </nav>
 
-    <div id="canvas-container"></div>
+    <!-- Hero Section -->
+    <section class="min-h-[85vh] flex flex-col items-center justify-center text-center px-4 relative z-10">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <h1 class="text-[12vw] sm:text-[9rem] font-black tracking-tighter leading-[0.85] uppercase select-none text-white filter drop-shadow-2xl">
+                SCALE<span class="text-brand-accent">—</span>
+                <br />
+                FASTER.
+            </h1>
+            <p class="text-sm sm:text-base font-medium tracking-widest text-zinc-500 uppercase">
+                Growth Architecture • Visual Brand Engineering
+            </p>
+        </div>
 
-    <section class="hero-section">
-        <div class="hero-text"><h1>SCALE<br>FASTER.</h1></div>
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-zinc-600 animate-bounce">
+            <span class="text-[10px] font-black tracking-widest uppercase">Scroll to view</span>
+            <i data-lucide="arrow-down" class="w-4 h-4 text-brand-accent"></i>
+        </div>
     </section>
 
-    <section class="work-section" id="work">
-        <div class="phone-grid">
+    <!-- Work Section with UGC Title -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 border-t border-zinc-900 bg-black/20 relative z-10" id="work">
+        <div class="max-w-7xl mx-auto">
             
-            <!-- 1. GYM -->
-            <div class="device-wrapper" data-index="0">
-                <div class="arrow arrow-left" onclick="moveSlide(this, -1)">←</div>
-                <div class="phone-device">
-                    <div class="slides-container">
-                        <img src="gym1.jpg" class="device-content">
-                        <img src="gym2.jpg" class="device-content">
-                        <img src="gym3.jpg" class="device-content">
-                        <img src="gym4.jpg" class="device-content">
-                    </div>
+            <!-- UGC Portfolio Header Section -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-24 border-b border-white/5 pb-12">
+                <div class="max-w-4xl text-left">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-accent/10 border border-brand-accent/20 rounded-full text-[10px] font-black text-brand-accent tracking-widest uppercase mb-4">
+                        <i data-lucide="sparkles" class="w-3 h-3 text-brand-accent animate-pulse"></i>
+                        Verified Portfolio
+                    </span>
+                    <h2 class="text-4xl md:text-[5.5rem] font-black leading-[0.85] tracking-tighter uppercase text-white">
+                        UGC<span class="text-brand-accent">—</span><br/>
+                        <span class="text-2xl md:text-4xl font-light tracking-normal opacity-90 block mt-3">
+                            User Generated Content for past or current clients
+                        </span>
+                    </h2>
                 </div>
-                <div class="mute-btn" onclick="toggleLocalMute(this)">🔇</div>
-                <div class="arrow arrow-right" onclick="moveSlide(this, 1)">→</div>
-                <div class="device-label">Gym Supplements</div>
+                <div class="text-left md:text-right shrink-0">
+                    <p class="text-xs tracking-[0.3em] uppercase opacity-40 font-bold mb-2">Project Index</p>
+                    <p class="font-serif-italic text-3xl md:text-4xl text-brand-accent">Volume 04</p>
+                </div>
             </div>
 
-            <!-- 2. CLOTHES -->
-            <div class="device-wrapper" data-index="0">
-                <div class="arrow arrow-left" onclick="moveSlide(this, -1)">←</div>
-                <div class="phone-device">
-                    <div class="slides-container">
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="clothes1.mp4" type="video/mp4"></video>
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="clothes2.mp4" type="video/mp4"></video>
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="clothes3.mp4" type="video/mp4"></video>
-                    </div>
+            <!-- Single Level Horizontal Scrolling Section with Arrows -->
+            <div class="relative w-full overflow-hidden py-10 sm:py-16 select-none">
+                <!-- Left and Right navigation buttons -->
+                <button
+                    onclick="scrollSlider('left')"
+                    class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-white rounded-full flex items-center justify-center cursor-pointer z-30 backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg group"
+                    aria-label="Scroll left"
+                >
+                    <i data-lucide="chevron-left" class="w-6 h-6 text-white group-hover:text-brand-accent transition-colors"></i>
+                </button>
+                <button
+                    onclick="scrollSlider('right')"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-white rounded-full flex items-center justify-center cursor-pointer z-30 backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg group"
+                    aria-label="Scroll right"
+                >
+                    <i data-lucide="chevron-right" class="w-6 h-6 text-white group-hover:text-brand-accent transition-colors"></i>
+                </button>
+
+                <!-- Left fade and Right fade masks -->
+                <div class="absolute top-0 bottom-0 left-0 w-24 sm:w-64 bg-gradient-to-r from-[#0d0d0d] via-[#0d0d0d]/80 to-transparent z-20 pointer-events-none"></div>
+                <div class="absolute top-0 bottom-0 right-0 w-24 sm:w-64 bg-gradient-to-l from-[#0d0d0d] via-[#0d0d0d]/80 to-transparent z-20 pointer-events-none"></div>
+
+                <!-- Main horizontal scrolling level section -->
+                <div class="perspective-container relative w-full overflow-hidden -skew-y-1 sm:-skew-y-2">
+                    <div
+                        id="sliderTrack"
+                        class="flex overflow-x-auto gap-8 sm:gap-12 scrollbar-hide py-16 scroll-smooth px-[25vw] sm:px-[35vw]"
+                    ></div>
                 </div>
-                <div class="mute-btn" onclick="toggleLocalMute(this)">🔇</div>
-                <div class="arrow arrow-right" onclick="moveSlide(this, 1)">→</div>
-                <div class="device-label">Designer Clothes Store</div>
             </div>
 
-            <!-- 3. WATCH -->
-            <div class="device-wrapper" data-index="0">
-                <div class="arrow arrow-left" onclick="moveSlide(this, -1)">←</div>
-                <div class="phone-device">
-                    <div class="slides-container">
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="watch1.mp4" type="video/mp4"></video>
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="watch2.mp4" type="video/mp4"></video>
-                        <img src="watch3.jpg" class="device-content">
-                        <img src="watch4.jpg" class="device-content">
+            <!-- Static Centered Call To Action (WANT TO BE INCLUDED) -->
+            <div class="mt-24 flex flex-col items-center justify-center relative z-20">
+                <div class="transition-all duration-500 hover:scale-[1.03] w-full max-w-sm">
+                    <div class="w-[250px] h-[480px] sm:w-[270px] sm:h-[500px] mx-auto bg-zinc-950 border-[10px] border-[#1a1a1a] rounded-[40px] relative overflow-hidden shadow-2xl flex flex-col justify-center items-center p-8 text-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-brand-accent/10 to-transparent pointer-events-none"></div>
+                        <div class="relative z-10 space-y-6">
+                            <div class="w-12 h-12 rounded-full bg-brand-accent/5 border border-brand-accent/20 mx-auto flex items-center justify-center">
+                                <i data-lucide="shield" class="w-5 h-5 text-brand-accent animate-pulse"></i>
+                            </div>
+                            <h3 class="font-black text-xl leading-snug tracking-tight text-white uppercase">
+                                WANT TO BE<br>INCLUDED?
+                            </h3>
+                            <p class="text-zinc-500 text-xs px-2 leading-relaxed">
+                                Elevate your brand aesthetic with engineered visual assets that drive high-conversions.
+                            </p>
+                            <a href="https://www.instagram.com/gakhs__/" target="_blank" rel="noopener noreferrer" class="inline-block bg-brand-accent text-white text-[11px] font-black px-6 py-3.5 rounded-full uppercase tracking-widest transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-brand-accent/20">
+                                WORK WITH ME
+                            </a>
+                        </div>
                     </div>
+                    <span class="mt-5 block font-bold tracking-widest uppercase text-xs text-zinc-500 text-center">
+                        Your Project?
+                    </span>
                 </div>
-                <div class="mute-btn" onclick="toggleLocalMute(this)">🔇</div>
-                <div class="arrow arrow-right" onclick="moveSlide(this, 1)">→</div>
-                <div class="device-label">Hyper Luxury Watch Store</div>
             </div>
 
-            <!-- 4. HISTORY (LAPTOP) -->
-            <div class="device-wrapper laptop-featured" data-index="0">
-                <div class="arrow arrow-left" onclick="moveSlide(this, -1)">←</div>
-                <div class="laptop-screen">
-                    <div class="slides-container">
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="history1.mp4" type="video/mp4"></video>
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="history2.mp4" type="video/mp4"></video>
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="history3.mp4" type="video/mp4"></video>
-                    </div>
-                </div>
-                <div class="laptop-base"></div>
-                <div class="mute-btn" onclick="toggleLocalMute(this)">🔇</div>
-                <div class="arrow arrow-right" onclick="moveSlide(this, 1)">→</div>
-                <div class="device-label">Historical YouTube Channel</div>
-            </div>
+        </div>
+    </section>
 
-            <!-- 5. CAR DETAILING -->
-            <div class="device-wrapper" data-index="0">
-                <div class="arrow arrow-left" onclick="moveSlide(this, -1)">←</div>
-                <div class="phone-device">
-                    <div class="slides-container">
-                        <img src="car1.jpg" class="device-content">
-                        <img src="car2.jpg" class="device-content">
-                        <img src="car3.jpg" class="device-content">
-                        <img src="car4.jpg" class="device-content">
-                    </div>
-                </div>
-                <div class="mute-btn" onclick="toggleLocalMute(this)">🔇</div>
-                <div class="arrow arrow-right" onclick="moveSlide(this, 1)">→</div>
-                <div class="device-label">Car Detailing</div>
-            </div>
+    <!-- Pricing Section -->
+    <section class="py-24 px-4 sm:px-6 lg:px-8 border-t border-zinc-900 bg-black/40 backdrop-blur-md relative z-10" id="pricing">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-4xl md:text-6xl font-black tracking-tighter uppercase text-white mb-16">
+                PRICING <span class="font-serif-italic text-brand-accent text-5xl md:text-7xl normal-case">plans</span>
+            </h2>
 
-            <!-- 6. YT SHORTS -->
-            <div class="device-wrapper" data-index="0">
-                <div class="arrow arrow-left" onclick="moveSlide(this, -1)">←</div>
-                <div class="phone-device">
-                    <div class="slides-container">
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="shorts1.mp4" type="video/mp4"></video>
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="shorts2.mp4" type="video/mp4"></video>
-                        <video class="device-content" loop muted playsinline preload="metadata"><source src="shorts3.mp4" type="video/mp4"></video>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                
+                <!-- Starter Pack -->
+                <div class="relative bg-zinc-950/40 border border-white/10 rounded-[30px] p-8 md:p-10 flex flex-col justify-between transition-all duration-500 hover:translate-y-[-10px] hover:scale-[1.02] backdrop-blur-xl hover:border-white/20">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4 block">Starter pack</span>
+                        <div class="text-4xl md:text-5xl font-black text-white tracking-tight mb-8">
+                            €20<span class="text-sm font-normal text-zinc-500 ml-2 tracking-normal">/ week</span>
+                        </div>
+                        <ul class="space-y-4 mb-10 text-left">
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                10 Visually Stunning Posts /week
+                            </li>
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                2 Viral Reels /week
+                            </li>
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                3 Insider Stories /week
+                            </li>
+                        </ul>
                     </div>
+                    <button onclick="openModal('Starter Pack')" class="w-full py-4 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-[0.98] cursor-pointer bg-transparent text-white border border-white/20 hover:border-brand-accent hover:bg-brand-accent/10">
+                        GET STARTER PACK
+                    </button>
                 </div>
-                <div class="mute-btn" onclick="toggleLocalMute(this)">🔇</div>
-                <div class="arrow arrow-right" onclick="moveSlide(this, 1)">→</div>
-                <div class="device-label">Viral YouTube Shorts</div>
-            </div>
 
-            <!-- 7. BEAUTY -->
-            <div class="device-wrapper" data-index="0">
-                <div class="arrow arrow-left" onclick="moveSlide(this, -1)">←</div>
-                <div class="phone-device">
-                    <div class="slides-container">
-                        <img src="beauty1.jpg" class="device-content">
-                        <img src="beauty2.jpg" class="device-content">
-                        <img src="beauty3.jpg" class="device-content">
+                <!-- Scale Pack (Featured) -->
+                <div class="relative bg-zinc-900/40 border border-brand-accent/30 rounded-[30px] p-8 md:p-10 flex flex-col justify-between transition-all duration-500 hover:translate-y-[-10px] hover:scale-[1.02] backdrop-blur-xl shadow-[0_20px_50px_rgba(255,77,0,0.05)]">
+                    <div class="absolute top-0 right-1/2 translate-x-[50%] translate-y-[-50%] bg-brand-accent text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
+                        MOST POPULAR
                     </div>
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4 block">Scale pack</span>
+                        <div class="text-4xl md:text-5xl font-black text-white tracking-tight mb-8">
+                            €40<span class="text-sm font-normal text-zinc-500 ml-2 tracking-normal">/ week</span>
+                        </div>
+                        <ul class="space-y-4 mb-10 text-left">
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                3 Visually Stunning Posts /day
+                            </li>
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                5 High Energy Reels
+                            </li>
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                1 High-converting Story /day
+                            </li>
+                        </ul>
+                    </div>
+                    <button onclick="openModal('Scale Pack')" class="w-full py-4 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-[0.98] cursor-pointer bg-brand-accent text-white hover:bg-brand-accent/80 border border-brand-accent shadow-md">
+                        GET SCALE PACK
+                    </button>
                 </div>
-                <div class="mute-btn" onclick="toggleLocalMute(this)">🔇</div>
-                <div class="arrow arrow-right" onclick="moveSlide(this, 1)">→</div>
-                <div class="device-label">Beauty Saloon</div>
-            </div>
 
-            <!-- 8. CTA -->
-            <div class="device-wrapper">
-                <div class="phone-device" style="background: linear-gradient(45deg, #0a0a0a, #1a1a1a);">
-                    <div class="cta-content" style="padding:40px; text-align:center; height:100%; display:flex; flex-direction:column; justify-content:center;">
-                        <p style="font-weight: 900; line-height: 1.2;">WANT TO BE<br>INCLUDED?</p>
-                        <a href="https://www.instagram.com/gakhs__/" target="_blank" class="cta-btn">WORK WITH ME</a>
+                <!-- Brand Builder -->
+                <div class="relative bg-zinc-950/40 border border-white/10 rounded-[30px] p-8 md:p-10 flex flex-col justify-between transition-all duration-500 hover:translate-y-[-10px] hover:scale-[1.02] backdrop-blur-xl hover:border-white/20">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4 block">Brand builder</span>
+                        <div class="text-4xl md:text-5xl font-black text-white tracking-tight mb-8">
+                            €55<span class="text-sm font-normal text-zinc-500 ml-2 tracking-normal">/ week</span>
+                        </div>
+                        <ul class="space-y-4 mb-10 text-left">
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                4 Aesthetic Posts /day
+                            </li>
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                7 Attention-Grabbing Reels
+                            </li>
+                            <li class="flex items-center text-sm text-zinc-300">
+                                <span class="mr-3 font-bold select-none text-brand-accent">✓</span>
+                                2 Engaging Stories /day
+                            </li>
+                        </ul>
                     </div>
+                    <button onclick="openModal('Brand Builder Pack')" class="w-full py-4 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-[0.98] cursor-pointer bg-transparent text-white border border-white/20 hover:border-brand-accent hover:bg-brand-accent/10">
+                        GET BRAND BUILDER PACK
+                    </button>
                 </div>
-                <div class="device-label">Your Project?</div>
+
             </div>
         </div>
     </section>
 
-    <footer>
-        <div class="talk-title">talk to me here</div>
-        <div class="footer-links-container">
-            <a href="https://www.instagram.com/gakhs__/" target="_blank">
-                <img src="insta-link.png" alt="Instagram" class="footer-icon-img">
+    <!-- Footer Contact & Meta Section -->
+    <footer class="py-24 border-t border-zinc-950 text-center relative z-10">
+        <h3 class="text-zinc-500 text-xs font-black uppercase tracking-widest mb-10">talk to me here</h3>
+
+        <div class="flex justify-center items-center gap-10 sm:gap-16 flex-wrap px-4">
+            <!-- Instagram Link -->
+            <a href="https://www.instagram.com/gakhs__/" target="_blank" rel="noopener noreferrer" class="group block relative" aria-label="Contact on Instagram">
+                 <div class="w-40 sm:w-56 h-32 sm:h-44 rounded-3xl bg-zinc-950 border border-white/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:border-brand-accent/30 group-hover:shadow-[0_20px_50px_rgba(255,77,0,0.08)] overflow-hidden">
+                    <img src="insta-link.png" alt="Instagram Icon" class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.style.display='none'; document.getElementById('instaFallback').style.display='flex';">
+                    <div id="instaFallback" class="hidden flex-col items-center gap-2">
+                        <i data-lucide="instagram" class="w-8 h-8 text-white"></i>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-zinc-500 group-hover:text-white">Instagram</span>
+                    </div>
+                </div>
             </a>
-            <img src="email-link.png" alt="Email" class="footer-icon-img" onclick="toggleModal()">
+
+            <!-- Email Clipboard Contact Button -->
+            <button onclick="openModal('Footer')" class="group block relative cursor-pointer outline-none" aria-label="Contact via Email">
+                 <div class="w-40 sm:w-56 h-32 sm:h-44 rounded-3xl bg-zinc-950 border border-white/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3 group-hover:border-brand-accent/30 group-hover:shadow-[0_20px_50px_rgba(255,77,0,0.08)] overflow-hidden">
+                    <img src="email-link.png" alt="Email Icon" class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.style.display='none'; document.getElementById('emailFallback').style.display='flex';">
+                    <div id="emailFallback" class="hidden flex-col items-center gap-2">
+                        <i data-lucide="mail" class="w-8 h-8 text-white"></i>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-zinc-500 group-hover:text-white">Email</span>
+                    </div>
+                </div>
+            </button>
+        </div>
+
+        <div class="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center text-[10px] tracking-widest opacity-40 uppercase font-bold gap-4 px-4">
+            <div>Est. 2024 / Design Portfolio</div>
+            <div class="hidden md:block">Scroll for Interactive Preview</div>
+            <div>Availability: Open for Projects</div>
         </div>
     </footer>
 
-    <!-- NEW PRICING SECTION -->
-    <section class="pricing-section" id="pricing">
-        <div class="pricing-title">PRICING PLANS</div>
-        <div class="pricing-grid">
-            
-            <!-- Plan 1 -->
-            <div class="pricing-card">
-                <div>
-                    <div class="tier-name">Starter pack</div>
-                    <div class="tier-price">€20 <span>/ week</span></div>
-                    <ul class="tier-features">
-                        <li>10 Visually Stunning Posts /week</li>
-                        <li>2 Viral Reels /week</li>
-                        <li>3 Insider Stories /week</li>
-                    </ul>
+    <!-- Copy-to-Clipboard Direct Email Modal -->
+    <div id="emailModal" class="fixed inset-0 w-full h-full bg-black/80 backdrop-blur-2xl flex justify-center items-center z-[1000] p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-zinc-950 border border-white/10 p-8 sm:p-12 rounded-[40px] text-center max-w-lg w-full relative shadow-[0_30px_100px_rgba(255,255,255,0.05)] transform scale-90 transition-all duration-300">
+            <button onclick="closeModal()" aria-label="Close modal" class="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="mb-6 flex justify-center">
+                <div id="copyIconContainer" class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400">
+                    <i id="modalCopyIcon" data-lucide="copy" class="w-6 h-6"></i>
                 </div>
-                <button class="pricing-card-btn" onclick="toggleModal()">GET STARTER PACK</button>
             </div>
 
-            <!-- Plan 2 (Featured) -->
-            <div class="pricing-card featured">
-                <div>
-                    <div class="tier-name">Scale pack</div>
-                    <div class="tier-price">€40 <span>/ week</span></div>
-                    <ul class="tier-features">
-                        <li>3 Visually Stunning Posts /day</li>
-                        <li>5 High Energy Reels</li>
-                        <li>1 High-converting Story /day</li>
-                    </ul>
-                </div>
-                <button class="pricing-card-btn" onclick="toggleModal()">GET SCALE PACK</button>
-            </div>
+            <h3 id="modalPlanLabel" class="text-zinc-500 text-xs font-black uppercase tracking-widest mb-2">Direct Email Contact</h3>
+            <div class="text-xl sm:text-2xl font-black mb-8 text-white break-all select-all font-mono tracking-tight">dgiakhs@gmail.com</div>
 
-            <!-- Plan 3 -->
-            <div class="pricing-card">
-                <div>
-                    <div class="tier-name">Brand builder</div>
-                    <div class="tier-price">€55 <span>/ week</span></div>
-                    <ul class="tier-features">
-                        <li>4 Aesthetic Posts /day</li>
-                        <li>7 Attention-Grabbing Reels</li>
-                        <li>2 Engaging Stories /day</li>
-                    </ul>
-                </div>
-                <button class="pricing-card-btn" onclick="toggleModal()">get brand builder pack</button>
-            </div>
-
-        </div>
-    </section>
-
-    <div id="email-modal" onclick="toggleModal()">
-        <div class="modal-card" onclick="event.stopPropagation()">
-            <div class="modal-email-text" id="email-val">dgiakhs@gmail.com</div>
-            <button class="copy-btn" id="copy-btn" onclick="copyEmail()">COPY EMAIL</button>
+            <button onclick="copyEmailToClipboard()" id="copyBtn" class="w-full py-4 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-[0.98] cursor-pointer bg-white text-black hover:bg-zinc-200 flex items-center justify-center gap-2">
+                COPY EMAIL
+            </button>
         </div>
     </div>
 
+
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- LOGO HIDE ON SCROLL ---
-        window.addEventListener('scroll', function() {
-            const frame = document.getElementById('logoFrame');
-            if (window.scrollY > 50) { frame.classList.add('hidden'); } else { frame.classList.remove('hidden'); }
-        });
+        // 1. Pre-shuffled portfolio items so every asset gets its own beautiful individual phone or laptop frame.
+        // Historical videos are removed. All paths are changed to relative (no leading slash) for 100% reliability.
+        const projects = [
+            {
+                title: "Gym Supplements #1",
+                category: "Gym Supplements",
+                icon: "dumbbell",
+                gradient: "from-orange-600/30 to-red-950/50",
+                slides: [{ src: "gym1.jpg", type: "image" }]
+            },
+            {
+                title: "Designer Clothes #1",
+                category: "Designer Clothes Store",
+                icon: "shirt",
+                gradient: "from-purple-600/30 to-indigo-950/50",
+                slides: [{ src: "clothes1.mp4", type: "video" }]
+            },
+            {
+                title: "Luxury Watch #1",
+                category: "Hyper Luxury Watch Store",
+                icon: "watch",
+                gradient: "from-amber-600/20 to-yellow-950/50",
+                slides: [{ src: "watch1.mp4", type: "video" }]
+            },
+            {
+                title: "Car Detailing #1",
+                category: "Car Detailing",
+                icon: "car",
+                gradient: "from-blue-600/20 to-slate-950/50",
+                slides: [{ src: "car1.jpg", type: "image" }]
+            },
+            {
+                title: "Viral Shorts #1",
+                category: "Viral YouTube Shorts",
+                icon: "flame",
+                gradient: "from-red-600/30 to-orange-950/50",
+                slides: [{ src: "shorts1.mp4", type: "video" }]
+            },
+            {
+                title: "Beauty Saloon #1",
+                category: "Beauty Saloon",
+                icon: "sparkles",
+                gradient: "from-pink-600/20 to-rose-950/50",
+                slides: [{ src: "beauty1.jpg", type: "image" }]
+            },
+            {
+                title: "Ai Airbnb #1",
+                category: "Ai Airbnb instagram page",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                slides: [{ src: "airbnb1.jpg", type: "image" }]
+            },
+            {
+                title: "Thessaloniki Rooftop #1",
+                category: "Luxury Airbnb Booking",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                isLaptop: true,
+                slides: [{ src: "airbnb1.jpg", type: "image" }]
+            },
+            {
+                title: "White Tower Suite #1",
+                category: "Premium Airbnb Funnel",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                isLaptop: true,
+                slides: [{ src: "airbnb2.jpg", type: "image" }]
+            },
+            {
+                title: "Gym Supplements #2",
+                category: "Gym Supplements",
+                icon: "dumbbell",
+                gradient: "from-orange-600/30 to-red-950/50",
+                slides: [{ src: "gym2.jpg", type: "image" }]
+            },
+            {
+                title: "Designer Clothes #2",
+                category: "Designer Clothes Store",
+                icon: "shirt",
+                gradient: "from-purple-600/30 to-indigo-950/50",
+                slides: [{ src: "clothes2.mp4", type: "video" }]
+            },
+            {
+                title: "Luxury Watch #2",
+                category: "Hyper Luxury Watch Store",
+                icon: "watch",
+                gradient: "from-amber-600/20 to-yellow-950/50",
+                slides: [{ src: "watch2.mp4", type: "video" }]
+            },
+            {
+                title: "Car Detailing #2",
+                category: "Car Detailing",
+                icon: "car",
+                gradient: "from-blue-600/20 to-slate-950/50",
+                slides: [{ src: "car2.jpg", type: "image" }]
+            },
+            {
+                title: "Viral Shorts #2",
+                category: "Viral YouTube Shorts",
+                icon: "flame",
+                gradient: "from-red-600/30 to-orange-950/50",
+                slides: [{ src: "shorts2.mp4", type: "video" }]
+            },
+            {
+                title: "Beauty Saloon #2",
+                category: "Beauty Saloon",
+                icon: "sparkles",
+                gradient: "from-pink-600/20 to-rose-950/50",
+                slides: [{ src: "beauty2.jpg", type: "image" }]
+            },
+            {
+                title: "Ai Airbnb #2",
+                category: "Ai Airbnb instagram page",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                slides: [{ src: "airbnb2.jpg", type: "image" }]
+            },
+            {
+                title: "Tokyo Penthouse #1",
+                category: "High-Ticket Airbnb Funnel",
+                icon: "sparkles",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                isLaptop: true,
+                slides: [{ src: "airbnb3.jpg", type: "image" }]
+            },
+            {
+                title: "Skyline Oasis #1",
+                category: "Airbnb Landing Page",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                isLaptop: true,
+                slides: [{ src: "airbnb4.jpg", type: "image" }]
+            },
+            {
+                title: "Gym Supplements #3",
+                category: "Gym Supplements",
+                icon: "dumbbell",
+                gradient: "from-orange-600/30 to-red-950/50",
+                slides: [{ src: "gym3.jpg", type: "image" }]
+            },
+            {
+                title: "Luxury Watch #3",
+                category: "Hyper Luxury Watch Store",
+                icon: "watch",
+                gradient: "from-amber-600/20 to-yellow-950/50",
+                slides: [{ src: "watch3.jpg", type: "image" }]
+            },
+            {
+                title: "Car Detailing #3",
+                category: "Car Detailing",
+                icon: "car",
+                gradient: "from-blue-600/20 to-slate-950/50",
+                slides: [{ src: "car3.jpg", type: "image" }]
+            },
+            {
+                title: "Viral Shorts #3",
+                category: "Viral YouTube Shorts",
+                icon: "flame",
+                gradient: "from-red-600/30 to-orange-950/50",
+                slides: [{ src: "shorts3.mp4", type: "video" }]
+            },
+            {
+                title: "Beauty Saloon #3",
+                category: "Beauty Saloon",
+                icon: "sparkles",
+                gradient: "from-pink-600/20 to-rose-950/50",
+                slides: [{ src: "beauty3.jpg", type: "image" }]
+            },
+            {
+                title: "Ai Airbnb #3",
+                category: "Ai Airbnb instagram page",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                slides: [{ src: "airbnb3.jpg", type: "image" }]
+            },
+            {
+                title: "Starry Loft #1",
+                category: "Luxury Airbnb Showcase",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                isLaptop: true,
+                slides: [{ src: "airbnb5.jpg", type: "image" }]
+            },
+            {
+                title: "Thessaloniki Sunset #1",
+                category: "Premium Airbnb Booking",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                isLaptop: true,
+                slides: [{ src: "airbnb1.jpg", type: "image" }]
+            },
+            {
+                title: "Gym Supplements #4",
+                category: "Gym Supplements",
+                icon: "dumbbell",
+                gradient: "from-orange-600/30 to-red-950/50",
+                slides: [{ src: "gym4.jpg", type: "image" }]
+            },
+            {
+                title: "Luxury Watch #4",
+                category: "Hyper Luxury Watch Store",
+                icon: "watch",
+                gradient: "from-amber-600/20 to-yellow-950/50",
+                slides: [{ src: "watch4.jpg", type: "image" }]
+            },
+            {
+                title: "Car Detailing #4",
+                category: "Car Detailing",
+                icon: "car",
+                gradient: "from-blue-600/20 to-slate-950/50",
+                slides: [{ src: "car4.jpg", type: "image" }]
+            },
+            {
+                title: "Ai Airbnb #4",
+                category: "Ai Airbnb instagram page",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                slides: [{ src: "airbnb4.jpg", type: "image" }]
+            },
+            {
+                title: "Ai Airbnb #5",
+                category: "Ai Airbnb instagram page",
+                icon: "home",
+                gradient: "from-teal-600/20 to-emerald-950/50",
+                slides: [{ src: "airbnb5.jpg", type: "image" }]
+            }
+        ];
 
-        function toggleModal() { document.getElementById('email-modal').classList.toggle('active'); }
-
-        function copyEmail() {
-            const email = document.getElementById('email-val').innerText;
-            navigator.clipboard.writeText(email).then(() => {
-                document.getElementById('copy-btn').innerText = "COPIED! ✅";
-                setTimeout(toggleModal, 800);
-            });
+        // Shuffle projects array in random order on load
+        for (let i = projects.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = projects[i];
+            projects[i] = projects[j];
+            projects[j] = temp;
         }
 
-        // --- MUTE LOGIC ---
-        function toggleLocalMute(btn) {
-            const wrapper = btn.closest('.device-wrapper');
-            const index = parseInt(wrapper.getAttribute('data-index') || 0);
-            const slides = wrapper.querySelectorAll('.device-content');
-            const activeVideo = slides[index];
-            if (activeVideo && activeVideo.tagName === 'VIDEO') {
-                activeVideo.muted = !activeVideo.muted;
-                btn.innerText = activeVideo.muted ? "🔇" : "🔊";
+        // 2. Starfield Animation Canvas Logic
+        const canvas = document.getElementById("starfield");
+        const ctx = canvas.getContext("2d");
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.min(Math.floor(window.innerWidth / 12), 150);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5,
+                    speed: Math.random() * 0.05 + 0.02,
+                    alpha: Math.random() * 0.6 + 0.2,
+                    increasing: Math.random() > 0.5
+                });
             }
         }
 
-        function updateMuteVisibility(wrapper) {
-            const slides = wrapper.querySelectorAll('.device-content');
-            const index = parseInt(wrapper.getAttribute('data-index') || 0);
-            const muteBtn = wrapper.querySelector('.mute-btn');
-            if (!muteBtn) return;
-            if (slides[index].tagName === 'VIDEO') {
-                muteBtn.classList.add('visible');
-            } else {
-                muteBtn.classList.remove('visible');
-            }
-        }
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
 
-        // --- SLIDER LOGIC ---
-        function moveSlide(arrowBtn, direction) {
-            const wrapper = arrowBtn.closest('.device-wrapper');
-            const container = wrapper.querySelector('.slides-container');
-            const slides = container.querySelectorAll('.device-content');
-            let currentIndex = parseInt(wrapper.getAttribute('data-index') || 0);
-            
-            container.querySelectorAll('video').forEach(v => { v.muted = true; v.pause(); });
-            const muteBtn = wrapper.querySelector('.mute-btn');
-            if (muteBtn) muteBtn.innerText = "🔇";
+                // Slow floating drift
+                star.y -= star.speed;
+                if (star.y < 0) star.y = canvas.height;
 
-            currentIndex += direction;
-            if (currentIndex >= slides.length) currentIndex = 0;
-            if (currentIndex < 0) currentIndex = slides.length - 1;
-            
-            wrapper.setAttribute('data-index', currentIndex);
-            container.style.transform = `translateX(-${currentIndex * 100}%)`;
-            
-            updateMuteVisibility(wrapper);
-            
-            const activeSlide = slides[currentIndex];
-            if(activeSlide.tagName === 'VIDEO') {
-                activeSlide.muted = true;
-                activeSlide.play().catch(()=>{});
-            }
-        }
-
-        // --- OPTIMIZED OBSERVER ---
-        // Threshold set to 0.05 so it starts playing as soon as it touches the screen
-        const observerOptions = { threshold: 0.05 };
-        const videoObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const wrapper = entry.target;
-                if (!wrapper.classList.contains('device-wrapper')) return;
-                const index = parseInt(wrapper.getAttribute('data-index') || 0);
-                const slides = wrapper.querySelectorAll('.device-content');
-                const activeSlide = slides[index];
-
-                if (entry.isIntersecting) {
-                    if (activeSlide && activeSlide.tagName === 'VIDEO') {
-                        activeSlide.play().catch(()=>{
-                            // If browser blocks, it usually requires a click.
-                            // We keep it muted to maximize chance of success.
-                        });
-                    }
+                // Subtle twinkle
+                if (star.increasing) {
+                    star.alpha += 0.005;
+                    if (star.alpha >= 0.8) star.increasing = false;
                 } else {
-                    if (activeSlide && activeSlide.tagName === 'VIDEO') {
-                        activeSlide.pause();
-                    }
+                    star.alpha -= 0.005;
+                    if (star.alpha <= 0.2) star.increasing = true;
                 }
             });
-        }, observerOptions);
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.device-wrapper').forEach(w => {
-                updateMuteVisibility(w);
-                videoObserver.observe(w);
-            });
-        });
-
-        // --- 3D BACKGROUND ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-        const geometry = new THREE.BufferGeometry();
-        const vertices = [];
-        for (let i = 0; i < 4500; i++) { vertices.push(THREE.MathUtils.randFloatSpread(25), THREE.MathUtils.randFloatSpread(25), THREE.MathUtils.randFloatSpread(25)); }
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        const points = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.015 }));
-        scene.add(points);
-        camera.position.z = 5;
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => { mouseX = (e.clientX - window.innerWidth / 2) / 300; mouseY = (e.clientY - window.innerHeight / 2) / 300; });
-        function animate() {
-            requestAnimationFrame(animate);
-            points.rotation.x += 0.00012; points.rotation.y += 0.00012;
-            camera.position.x += (mouseX - camera.position.x) * 0.025; camera.position.y += (-mouseY - camera.position.y) * 0.025;
-            camera.lookAt(scene.position);
-            renderer.render(scene, camera);
+            requestAnimationFrame(animateStars);
         }
-        animate();
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        animateStars();
+
+        // 3. Monitor scroll to smoothly fade out navigation logo
+        window.addEventListener("scroll", () => {
+            const logo = document.getElementById("navLogo");
+            if (window.scrollY > 50) {
+                logo.classList.add("opacity-0", "-translate-y-10", "scale-90", "pointer-events-none");
+            } else {
+                logo.classList.remove("opacity-0", "-translate-y-10", "scale-90", "pointer-events-none");
+            }
         });
+
+        // 4. Helper functions to toggle loading fallback overlay
+        window.hideFallback = function(prjId, slideIdx) {
+            const fallback = document.getElementById(`${prjId}-fallback-${slideIdx}`);
+            if (fallback) {
+                fallback.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        window.showFallback = function(prjId, slideIdx) {
+            const fallback = document.getElementById(`${prjId}-fallback-${slideIdx}`);
+            if (fallback) {
+                fallback.classList.remove('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        // 5. Build dynamic device showcases in 3 infinite scrolling tracks
+        function createColumnMarkup(col, instIdx) {
+            const wrapper = document.createElement("div");
+            
+            if (col.type === "stacked") {
+                wrapper.className = "marquee-item-3d shrink-0 w-[310px] sm:w-[470px] flex flex-col gap-10 sm:gap-14 justify-center";
+                
+                let innerHtml = "";
+                col.projects.forEach(project => {
+                    const globalIdx = projects.indexOf(project);
+                    const prjId = `showcase-${globalIdx}-inst-${instIdx}`;
+                    
+                    // Build slides HTML
+                    let slidesHtml = '';
+                    const slide = project.slides[0];
+                    const sIdx = 0;
+                    
+                    slidesHtml += `
+                        <div class="min-w-full h-full relative" data-index="${sIdx}">
+                            <!-- Loader / Fallback Card -->
+                            <div class="absolute inset-0 bg-gradient-to-br ${project.gradient} flex flex-col items-center justify-center p-6 text-center select-none z-10 duration-300 pointer-events-none" id="${prjId}-fallback-${sIdx}">
+                                <div class="relative mb-4 flex items-center justify-center">
+                                    <div class="absolute inset-0 bg-white/10 blur-xl rounded-full w-14 h-14"></div>
+                                    <i class="w-10 h-10 text-white drop-shadow-md" data-lucide="${project.icon}"></i>
+                                </div>
+                                <span class="text-white font-bold tracking-widest uppercase text-xs px-2 py-0.5 bg-black/20 rounded-md border border-white/10">${project.category}</span>
+                            </div>
+                    `;
+
+                    if (slide.type === 'video') {
+                        slidesHtml += `
+                            <video id="${prjId}-video-${sIdx}" src="${slide.src}" class="w-full h-full object-cover relative z-0" loop muted playsinline autoplay preload="auto" oncanplay="hideFallback('${prjId}', ${sIdx})" onplay="hideFallback('${prjId}', ${sIdx})" onloadedmetadata="hideFallback('${prjId}', ${sIdx})" onerror="showFallback('${prjId}', ${sIdx})"></video>
+                        `;
+                    } else {
+                        slidesHtml += `
+                            <img id="${prjId}-img-${sIdx}" src="${slide.src}" class="w-full h-full object-cover relative z-0" alt="${project.title}" onload="hideFallback('${prjId}', ${sIdx})" onerror="showFallback('${prjId}', ${sIdx})">
+                        `;
+                    }
+                    slidesHtml += `</div>`;
+
+                    const isVideo = slide.type === 'video';
+                    const deviceMarkup = `
+                    <div class="flex flex-col items-center w-full max-w-[480px] mx-auto" id="${prjId}">
+                        <!-- Laptop Screen -->
+                        <div class="w-[300px] h-[180px] sm:w-[460px] sm:h-[280px] bg-black border-[10px] border-[#1a1a1a] rounded-t-2xl relative overflow-hidden shadow-2xl">
+                            <div class="relative w-full h-full overflow-hidden bg-zinc-950">
+                                <!-- Audio Control -->
+                                <button id="${prjId}-mute-btn" onclick="toggleMute(${globalIdx}, ${instIdx}, event)" class="absolute bottom-3 right-3 w-8 h-8 bg-white/10 hover:bg-white/25 border border-white/10 text-white rounded-full flex items-center justify-center cursor-pointer z-40 backdrop-blur-md shadow-md ${isVideo ? 'block' : 'hidden'}">
+                                    <i data-lucide="volume-x" class="w-4 h-4" id="${prjId}-mute-icon"></i>
+                                </button>
+                                <!-- Screen Slider Track -->
+                                <div class="flex w-full h-full" id="${prjId}-track">
+                                    ${slidesHtml}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Laptop Keyboard Base -->
+                        <div class="w-[340px] h-[8px] sm:w-[510px] sm:h-[10px] bg-[#333] border-b-2 border-zinc-700 rounded-b-lg shadow-xl"></div>
+                    </div>
+                    `;
+
+                    innerHtml += `
+                        <div class="flex flex-col items-center select-none w-full mx-auto">
+                            ${deviceMarkup}
+                            <span class="mt-5 font-bold tracking-widest uppercase text-xs text-zinc-500 text-center block">
+                                ${project.title}
+                            </span>
+                        </div>
+                    `;
+                });
+                wrapper.innerHTML = innerHtml;
+            } else {
+                const project = col.projects[0];
+                const globalIdx = projects.indexOf(project);
+                const prjId = `showcase-${globalIdx}-inst-${instIdx}`;
+                
+                wrapper.className = "marquee-item-3d shrink-0 w-[250px] sm:w-[260px]";
+                
+                let slidesHtml = '';
+                const slide = project.slides[0];
+                const sIdx = 0;
+                
+                slidesHtml += `
+                    <div class="min-w-full h-full relative" data-index="${sIdx}">
+                        <!-- Loader / Fallback Card -->
+                        <div class="absolute inset-0 bg-gradient-to-br ${project.gradient} flex flex-col items-center justify-center p-6 text-center select-none z-10 duration-300 pointer-events-none" id="${prjId}-fallback-${sIdx}">
+                            <div class="relative mb-4 flex items-center justify-center">
+                                <div class="absolute inset-0 bg-white/10 blur-xl rounded-full w-14 h-14"></div>
+                                <i class="w-10 h-10 text-white drop-shadow-md" data-lucide="${project.icon}"></i>
+                            </div>
+                            <span class="text-white font-bold tracking-widest uppercase text-xs px-2 py-0.5 bg-black/20 rounded-md border border-white/10">${project.category}</span>
+                        </div>
+                `;
+
+                if (slide.type === 'video') {
+                    slidesHtml += `
+                        <video id="${prjId}-video-${sIdx}" src="${slide.src}" class="w-full h-full object-cover relative z-0" loop muted playsinline autoplay preload="auto" oncanplay="hideFallback('${prjId}', ${sIdx})" onplay="hideFallback('${prjId}', ${sIdx})" onloadedmetadata="hideFallback('${prjId}', ${sIdx})" onerror="showFallback('${prjId}', ${sIdx})"></video>
+                    `;
+                } else {
+                    slidesHtml += `
+                        <img id="${prjId}-img-${sIdx}" src="${slide.src}" class="w-full h-full object-cover relative z-0" alt="${project.title}" onload="hideFallback('${prjId}', ${sIdx})" onerror="showFallback('${prjId}', ${sIdx})">
+                    `;
+                }
+                slidesHtml += `</div>`;
+
+                const isVideo = slide.type === 'video';
+                const deviceMarkup = `
+                <div class="w-[250px] h-[510px] sm:w-[260px] sm:h-[530px] bg-black border-[10px] border-[#1a1a1a] rounded-[40px] relative overflow-hidden shadow-2xl flex flex-col justify-start mx-auto" id="${prjId}">
+                    <!-- Notch -->
+                    <div class="absolute top-0 left-1/2 translate-x-[-50%] w-24 h-6 bg-[#1a1a1a] rounded-b-2xl z-40 flex items-center justify-center">
+                        <div class="w-3 h-3 bg-zinc-900 rounded-full border border-zinc-850"></div>
+                    </div>
+                    <!-- Screen Container -->
+                    <div class="relative w-full h-full overflow-hidden bg-zinc-950 rounded-[30px]">
+                        <!-- Audio Control -->
+                        <button id="${prjId}-mute-btn" onclick="toggleMute(${globalIdx}, ${instIdx}, event)" class="absolute bottom-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/25 border border-white/10 text-white rounded-full flex items-center justify-center cursor-pointer z-40 backdrop-blur-md shadow-md ${isVideo ? 'block' : 'hidden'}">
+                            <i data-lucide="volume-x" class="w-4 h-4" id="${prjId}-mute-icon"></i>
+                        </button>
+                        <!-- Track -->
+                        <div class="flex w-full h-full" id="${prjId}-track">
+                            ${slidesHtml}
+                        </div>
+                    </div>
+                </div>
+                `;
+
+                wrapper.innerHTML = `
+                    <div class="flex flex-col items-center select-none w-full mx-auto">
+                        ${deviceMarkup}
+                        <span class="mt-5 font-bold tracking-widest uppercase text-xs text-zinc-500 text-center block">
+                            ${project.title}
+                        </span>
+                    </div>
+                `;
+            }
+            return wrapper;
+        }
+
+        // Helper function to pair up laptops
+        function buildMarqueeColumns(trackProjects) {
+            const cols = [];
+            const laptops = trackProjects.filter(p => p.isLaptop);
+            const phones = trackProjects.filter(p => !p.isLaptop);
+
+            // Group laptops in pairs of 2
+            const stackedLaptops = [];
+            for (let i = 0; i < laptops.length; i += 2) {
+                if (i + 1 < laptops.length) {
+                    stackedLaptops.push([laptops[i], laptops[i + 1]]);
+                } else {
+                    stackedLaptops.push([laptops[i], laptops[i]]);
+                }
+            }
+
+            // Interleave beautifully: 2 phones, then 1 stacked laptop
+            let phoneIdx = 0;
+            let laptopIdx = 0;
+            while (phoneIdx < phones.length || laptopIdx < stackedLaptops.length) {
+                if (phoneIdx < phones.length) {
+                    cols.push({ type: "single", projects: [phones[phoneIdx]] });
+                    phoneIdx++;
+                }
+                if (phoneIdx < phones.length) {
+                    cols.push({ type: "single", projects: [phones[phoneIdx]] });
+                    phoneIdx++;
+                }
+                if (laptopIdx < stackedLaptops.length) {
+                    cols.push({ type: "stacked", projects: stackedLaptops[laptopIdx] });
+                    laptopIdx++;
+                }
+            }
+            return cols;
+        }
+
+        const sliderColumns = buildMarqueeColumns(projects);
+
+        // Populate slider track
+        const sliderContainer = document.getElementById("sliderTrack");
+        sliderColumns.forEach(col => {
+            sliderContainer.appendChild(createColumnMarkup(col, 0));
+        });
+
+        // 5b. Scroll Slider function
+        window.scrollSlider = function(direction) {
+            const container = document.getElementById("sliderTrack");
+            if (!container) return;
+            const children = Array.from(container.children);
+            if (children.length === 0) return;
+
+            const containerCenter = container.scrollLeft + container.offsetWidth / 2;
+
+            // Find closest index to center
+            let closestIdx = 0;
+            let minDiff = Infinity;
+            children.forEach((child, idx) => {
+                const childCenter = child.offsetLeft + child.offsetWidth / 2;
+                const diff = Math.abs(childCenter - containerCenter);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIdx = idx;
+                }
+            });
+
+            // Target index relative to closestIdx
+            let targetIdx = direction === "left" ? closestIdx - 1 : closestIdx + 1;
+            if (targetIdx < 0) targetIdx = 0;
+            if (targetIdx >= children.length) targetIdx = children.length - 1;
+
+            const targetChild = children[targetIdx];
+            if (targetChild) {
+                const targetScrollLeft = targetChild.offsetLeft + targetChild.offsetWidth / 2 - container.offsetWidth / 2;
+                container.scrollTo({
+                    left: targetScrollLeft,
+                    behavior: "smooth"
+                });
+            }
+        };
+
+        // Render Lucide Icons
+        lucide.createIcons();
+
+        // 6. Interactive Video Audio Control Logic
+        window.toggleMute = function(globalIdx, instanceIdx, e) {
+            if (e) e.stopPropagation();
+            
+            // Loop over all instances of this project to keep mute/unmute state in sync!
+            const isMutedNow = document.getElementById(`showcase-${globalIdx}-inst-0-video-0`)?.muted ?? true;
+            const targetMute = !isMutedNow;
+
+            for (let i = 0; i < 1; i++) {
+                const prjId = `showcase-${globalIdx}-inst-${i}`;
+                const video = document.getElementById(`${prjId}-video-0`);
+                if (video) {
+                    video.muted = targetMute;
+                }
+                const muteIcon = document.getElementById(`${prjId}-mute-icon`);
+                if (muteIcon) {
+                    if (targetMute) {
+                        muteIcon.setAttribute('data-lucide', 'volume-x');
+                    } else {
+                        muteIcon.setAttribute('data-lucide', 'volume-2');
+                    }
+                }
+            }
+            lucide.createIcons();
+        }
+
+        // Helper functions to toggle loading fallback overlay
+        window.hideFallback = function(prjId, slideIdx) {
+            const fallback = document.getElementById(`${prjId}-fallback-${slideIdx}`);
+            if (fallback) {
+                fallback.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        window.showFallback = function(prjId, slideIdx) {
+            const fallback = document.getElementById(`${prjId}-fallback-${slideIdx}`);
+            if (fallback) {
+                fallback.classList.remove('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        // 8. Contact Modal Logic
+        const modal = document.getElementById("emailModal");
+        const modalContent = modal.querySelector(".bg-zinc-950");
+        const emailAddress = "dgiakhs@gmail.com";
+
+        window.openModal = function(planName) {
+            const label = document.getElementById("modalPlanLabel");
+            if (planName && planName !== 'Footer') {
+                label.innerText = `direct contact: ${planName}`;
+            } else {
+                label.innerText = "Direct Email Contact";
+            }
+            modal.classList.remove("opacity-0", "pointer-events-none");
+            modalContent.classList.remove("scale-90");
+            modalContent.classList.add("scale-100");
+        }
+
+        window.closeModal = function() {
+            modal.classList.add("opacity-0", "pointer-events-none");
+            modalContent.classList.remove("scale-100");
+            modalContent.classList.add("scale-90");
+        }
+
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        window.copyEmailToClipboard = function() {
+            navigator.clipboard.writeText(emailAddress).then(() => {
+                const btn = document.getElementById("copyBtn");
+                const iconContainer = document.getElementById("copyIconContainer");
+                const copyIcon = document.getElementById("modalCopyIcon");
+
+                btn.innerText = "COPIED! ✅";
+                btn.className = "w-full py-4 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-[0.98] cursor-pointer bg-emerald-500 text-black";
+                iconContainer.className = "w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400";
+                copyIcon.setAttribute("data-lucide", "check");
+                lucide.createIcons();
+
+                setTimeout(() => {
+                    btn.innerText = "COPY EMAIL";
+                    btn.className = "w-full py-4 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-[0.98] cursor-pointer bg-white text-black hover:bg-zinc-200";
+                    iconContainer.className = "w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400";
+                    copyIcon.setAttribute("data-lucide", "copy");
+                    lucide.createIcons();
+                    closeModal();
+                }, 1000);
+            });
+        }
+
+        // 9. Autoplay video when device is scrolled into viewport using IntersectionObserver
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) {
+                    video.play().catch(() => {});
+                } else {
+                    video.pause();
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll("video").forEach(v => observer.observe(v));
+
+        // 10. Dynamic 3D Perspective Curvature Warp Effect matching the screenshot
+        function update3DTransforms() {
+            const items = document.querySelectorAll(".marquee-item-3d");
+            const centerX = window.innerWidth / 2;
+
+            items.forEach((item) => {
+                const rect = item.getBoundingClientRect();
+                const itemX = rect.left + rect.width / 2;
+                const d = (itemX - centerX) / centerX;
+
+                const clampedD = Math.max(-1.5, Math.min(1.5, d));
+                const absD = Math.abs(clampedD);
+
+                // Check if hovered
+                const isHovered = item.matches(":hover");
+
+                const rotY = clampedD * -22;
+                const rotZ = clampedD * -8;
+                const translateY = absD * -15 + (isHovered ? -12 : 0);
+                const transZ = absD * -120 + (isHovered ? 60 : 0);
+                const scale = (1 - absD * 0.12) * (isHovered ? 1.08 : 1.0);
+                const opacity = isHovered ? 1.0 : Math.max(0.2, 1 - absD * 0.45);
+
+                item.style.transform = `perspective(1000px) translate3d(0, ${translateY}px, ${transZ}px) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${scale})`;
+                item.style.opacity = opacity;
+            });
+
+            requestAnimationFrame(update3DTransforms);
+        }
+        requestAnimationFrame(update3DTransforms);
+
     </script>
 </body>
 </html>
- 
